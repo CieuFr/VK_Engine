@@ -24,6 +24,9 @@ namespace vkinit {
 
 	VkPipelineLayoutCreateInfo pipeline_layout_create_info();
 
+	VkFenceCreateInfo fence_create_info(VkFenceCreateFlags flags = 0);
+	VkSemaphoreCreateInfo semaphore_create_info(VkSemaphoreCreateFlags flags = 0);
+
 	//vulkan init code goes here
 }
 
