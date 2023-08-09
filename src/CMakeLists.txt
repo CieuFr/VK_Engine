@@ -5,6 +5,8 @@ add_executable(vulkan_guide
     vk_engine.cpp
     vk_engine.h
     vk_types.h
+    vk_mesh.h
+    vk_mesh.cpp
     vk_initializers.cpp
     vk_initializers.h)
 

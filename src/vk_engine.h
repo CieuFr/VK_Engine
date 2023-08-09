@@ -7,6 +7,9 @@
 #include <vector>
 #include <deque>
 #include <functional>
+#include <vk_mesh.h>
+#include <glm/glm.hpp>
+
 
 struct DeletionQueue
 {
@@ -88,6 +91,12 @@ public:
 
 	DeletionQueue _mainDeletionQueue;
 
+	VmaAllocator _allocator; //vma lib allocator
+
+	VkPipeline _meshPipeline;
+	Mesh _triangleMesh;
+
+	VkPipelineLayout _meshPipelineLayout;
 
 
 private : 
@@ -107,6 +116,9 @@ private :
 
 	void init_pipelines();
 
+	void load_meshes();
+
+	void upload_mesh(Mesh& mesh);
 
 
 };
@@ -127,4 +139,8 @@ public:
 	VkPipeline build_pipeline(VkDevice device, VkRenderPass pass);
 };
 
+struct MeshPushConstants {
+	glm::vec4 data;
+	glm::mat4 render_matrix;
+};
 
