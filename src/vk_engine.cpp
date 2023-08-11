@@ -208,6 +208,33 @@ void VulkanEngine::run()
 						_selectedShader = 0;
 					}
 				}
+				switch (e.key.keysym.sym) {
+					case SDLK_LEFT:
+					case SDLK_q: camera.position += -camera.right; break;
+					case SDLK_RIGHT :
+					case SDLK_d: camera.position += camera.right; break;
+					case SDLK_UP: 
+					case SDLK_z: camera.position += -camera.invDirection; break;
+					case SDLK_DOWN: 
+					case SDLK_s: camera.position += camera.invDirection; break;
+					case SDLK_e: camera.position += camera.up; break;
+					case SDLK_a: camera.position += -camera.up; break;
+				}
+			}
+			else if (e.type == SDL_MOUSEMOTION && e.motion.state & SDL_BUTTON_LMASK) {
+				const float yaw = e.motion.xrel * 0.1f;
+				const float pitch = e.motion.yrel * 0.1f;
+				camera.yaw = glm::mod(yaw + camera.yaw, 360.f);
+				camera.pitch = glm::clamp(pitch + camera.pitch, -89.f,89.f);
+
+				const float radYaw = glm::radians(camera.yaw);
+				const float radPitch = glm::radians(camera.pitch);
+
+				camera.invDirection = glm::normalize(
+					glm::vec3(glm::cos(radYaw) * glm::cos(radPitch), glm::sin(radPitch), glm::sin(radYaw) * glm::cos(radPitch)));
+					camera.right = glm::normalize(glm::cross(glm::vec3(0.f, 1.f, 0.f), camera.invDirection)); // We suppose 'y' as up.
+					camera.up = glm::normalize(glm::cross(camera.invDirection, camera.right)
+				);
 			}
 		}
 
@@ -219,7 +246,6 @@ FrameData& VulkanEngine::get_current_frame()
 {
 	return _frames[_frameNumber % FRAME_OVERLAP];
 }
-
 
 FrameData& VulkanEngine::get_last_frame()
 {
@@ -548,7 +574,6 @@ void VulkanEngine::init_pipelines()
 		std::cout << "Error when building the mesh vertex shader module" << std::endl;
 	}
 
-
 	//build the stage-create-info for both vertex and fragment stages. This lets the pipeline know the shader modules per stage
 	PipelineBuilder pipelineBuilder;
 
@@ -557,7 +582,6 @@ void VulkanEngine::init_pipelines()
 
 	pipelineBuilder._shaderStages.push_back(
 		vkinit::pipeline_shader_stage_create_info(VK_SHADER_STAGE_FRAGMENT_BIT, colorMeshShader));
-
 
 	//we start from just the default empty pipeline layout info
 	VkPipelineLayoutCreateInfo mesh_pipeline_layout_info = vkinit::pipeline_layout_create_info();
@@ -837,10 +861,7 @@ void VulkanEngine::upload_mesh(Mesh& mesh)
 	vmaDestroyBuffer(_allocator, stagingBuffer._buffer, stagingBuffer._allocation);
 
 
-
 }
-
-
 
 Material* VulkanEngine::create_material(VkPipeline pipeline, VkPipelineLayout layout, const std::string& name)
 {
@@ -863,7 +884,6 @@ Material* VulkanEngine::get_material(const std::string& name)
 	}
 }
 
-
 Mesh* VulkanEngine::get_mesh(const std::string& name)
 {
 	auto it = _meshes.find(name);
@@ -875,14 +895,12 @@ Mesh* VulkanEngine::get_mesh(const std::string& name)
 	}
 }
 
-
 void VulkanEngine::draw_objects(VkCommandBuffer cmd, RenderObject* first, int count)
 {
 	//make a model view matrix for rendering the object
 	//camera view
-	glm::vec3 camPos = { 0.f,-6.f,-10.f };
 
-	glm::mat4 view = glm::translate(glm::mat4(1.f), camPos);
+	glm::mat4 view = glm::lookAt(camera.position,camera.position-camera.invDirection,camera.up);
 	//camera projection
 	glm::mat4 projection = glm::perspective(glm::radians(70.f), 1700.f / 900.f, 0.1f, 200.0f);
 	projection[1][1] *= -1;
@@ -969,8 +987,6 @@ void VulkanEngine::draw_objects(VkCommandBuffer cmd, RenderObject* first, int co
 		vkCmdDraw(cmd, object.mesh->_vertices.size(), 1, 0, i);
 	}
 }
-
-
 
 void VulkanEngine::init_scene()
 {

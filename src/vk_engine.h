@@ -110,10 +110,21 @@ struct GPUObjectData {
 	glm::mat4 modelMatrix;
 };
 
+struct Camera {
+	glm::vec3 position;
+	glm::vec3 up = glm::vec3(0.f, 1.f, 0.f);
+	glm::vec3 right = glm::vec3(-1.f, 0.f, 0.f);
+	glm::vec3 invDirection = glm::vec3(0.f, 0.f, 1.f);
+	float yaw = 0;
+	float pitch = 0;
+};
+
 constexpr unsigned int FRAME_OVERLAP = 2;
 
 class VulkanEngine {
 public:
+	
+	Camera camera = {};
 
 	bool _isInitialized{ false };
 	int _frameNumber{ 0 };
