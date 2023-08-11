@@ -62,6 +62,7 @@ struct MeshPushConstants {
 
 
 struct Material {
+	VkDescriptorSet textureSet{ VK_NULL_HANDLE }; //texture defaulted to null
 	VkPipeline pipeline;
 	VkPipelineLayout pipelineLayout;
 };
@@ -117,6 +118,11 @@ struct Camera {
 	glm::vec3 invDirection = glm::vec3(0.f, 0.f, 1.f);
 	float yaw = 0;
 	float pitch = 0;
+};
+
+struct Texture {
+	AllocatedImage image;
+	VkImageView imageView;
 };
 
 constexpr unsigned int FRAME_OVERLAP = 2;
@@ -216,6 +222,12 @@ public:
 	UploadContext _uploadContext;
 
 	void immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function);
+
+	std::unordered_map<std::string, Texture> _loadedTextures;
+
+	void load_images();
+
+	VkDescriptorSetLayout _singleTextureSetLayout;
 
 private:
 
